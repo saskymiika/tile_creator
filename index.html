@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <link rel='stylesheet' href='main.css' type='text/css'>
+    <title>Tile Creator 64x64</title>
+    <script defer src="./graphics.js"></script>
+    <script defer src="./tilecreator.js"></script>
+</head>
+<body>
+    <div id="canvas-holder">
+        <div id="canvas-toolbar">
+            
+            <div style="display: flex;box-sizing: border-box; width: fit-content;">
+
+                <button style="margin-right:10px" onclick="graphs.upload64x64()">UPLOAD</button>
+
+                <button onclick="graphs.saveToImage()">SAVE AS </button>
+                <input type="text" id="main-frame-name" placeholder="Filename" title="file name" >
+                <script> document.getElementById('main-frame-name').value = 'Image_64x64' </script>
+            </div>
+
+            <label style="margin:0 10px 0 auto;display: flex;align-items: center;" for="pixel-range">pixel size <span style="margin-left:6px;" id="psz">1</span></label>
+            <input id="pixel-range" type="range" value="1" min="1" max="10"  onchange="graphs.setPixelSize(Number(this.value))">
+
+        </div>
+        <div id="canvas-middle">
+            <div id="left-toolbar" class="toolbar-v">
+                <div id="color">
+                    <label title="select color" id="color-label" for="color-select"></label>
+                    <input id="color-select" type="color" onchange="(addColorToPalette())" oninput="(graphs.setColor(this.value));">
+                </div>
+                <div id="palette"></div>
+            </div>
+            <canvas id='canvas'></canvas>
+            <div id="right-toolbar" class="toolbar-v">
+                <button class="btn grid" onclick="graphs.toggleGridArea()" style="margin-bottom: 20px;" ><span>G</span></button>
+
+                <button title="draw pixels hotkey '1'" class="btn draw" onclick="graphs.setDrawMode(0)"><span>1</span></button>
+                <button title="erase  hotkey '2'" class="btn erase" onclick="graphs.setDrawMode(3)"><span>2</span></button>
+                <button title="fill hotkey '3'" class="btn fill" onclick="graphs.setDrawMode(1)"><span>3</span></button>
+                <button title="erase all linked pixels hotkey '4'" class="btn erase-all" onclick="graphs.setDrawMode(2)"><span>4</span></button>
+
+                <button title="clear canvas hotkey 'C'" class="btn clear-canvas" style="margin-top: 20px;" onclick="graphs.clearCanvas()"><span>C</span></button>
+            </div>
+        </div>
+    </div>
+
+    <canvas title="preview" id='preview' width="64" height="64"></canvas>
+
+
+    <div id="animation-sequences" class="show">
+        <div class="options">
+            <button onclick="graphs.clearAnimations()">X</button>
+            <span>Animation sequences</span>
+
+            <button title="add frame to animation sequence hotkey 'Enter'" style="box-sizing: border-box;" onclick="graphs.addFrame()">add frame</button>
+            <input title="animation number" style="width: 40px;box-sizing: border-box;text-align: center;" type="number" value="1" min="1"  oninput="(graphs.currentLayer = Number(this.value))">
+
+            <div style="display: flex; align-items: center;">
+                <input title="show previous frame in the background" checked id="onion-skin-checkbox" type="checkbox">
+                <label title="show previous frame in the background" for="onion-skin-checkbox">Onion skin</label>
+            </div>
+
+            <button title="bake animations into one sprite sheet">Create spritesheet</button>
+
+            <div id="frame-options"></div>
+
+            <button onclick="collapseLayers(this.parentNode.parentNode)" class="collapse"></button>
+            <script>
+                function collapseLayers(element) {
+                    element.className = element.className === 'show' ? 'hide' : 'show';
+                }
+            </script>
+        </div>
+
+        <div id="layers"></div>
+        
+    </div>
+    
+
+</body>
+</html>
