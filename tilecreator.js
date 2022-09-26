@@ -110,8 +110,8 @@ async function todo() {
 
     console.log('\nTÄNNE KAIKKI SEURAAVAAT TODOT: kirjoita uudelle riville','\n ')
     let list = [
-        'Bakee animaatiot yhteen sprite sheetiin',
         'Upload chekkaa kuvan ja laskee 64 kuvapixelin mukaan, tekee automaattisesti animaatio framet editoriin',
+        'Seivaa projekti pakatuksi tiedostoksi localStorageen',
     ]
 
     if(list.length === 0) return;

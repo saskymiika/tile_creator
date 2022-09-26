@@ -14,6 +14,116 @@ class Graphics {
         this.frameIndex = 0
     }
 
+    getHEXPixelValue(rgb) {
+        
+        let r = rgb[0].toString(16),
+            g = rgb[1].toString(16),
+            b = rgb[2].toString(16),
+            a = rgb[3].toString(16);
+            
+        r = r.length === 1 ? '0'+r : r
+        g = g.length === 1 ? '0'+g : g
+        b = b.length === 1 ? '0'+b : b
+        a = a.length === 1 ? '0'+a : a
+            
+        return '#'+r+g+b+a
+    }
+
+    getRGBAPixelValue() {
+        
+        return null
+            
+    }
+
+    createSpritesheet() {
+        if(!document.getElementById('layers').hasChildNodes()) return;
+
+        let animations = document.getElementsByClassName('frames')
+
+        // refer to each canvas element in frame div.frames element
+        // 1. Count the width according to the child nodes amount
+
+        let mostFrames = 0
+
+        for(let frames of animations) {
+            mostFrames = frames.childNodes.length >= mostFrames ? frames.childNodes.length : mostFrames
+        }
+        // 2. create spritesheet canvas
+        let spriteSheet = document.createElement('canvas')
+        spriteSheet.width  = mostFrames*64
+        spriteSheet.height = animations.length*64
+        let scx = spriteSheet.getContext('2d')
+        
+        // 3. draw contents of each canvas onto the spritesheet
+        
+        let xIndex = 0,
+            yIndex = 0;
+        for(let frames of animations) {
+            for(let fr of frames.childNodes) {
+                let frc  = fr.getContext('2d')
+                for(let y = 0; y < 64; y++) {
+                    for(let x = 0; x < 64; x++) {
+                        scx.fillStyle = this.getHEXPixelValue(frc.getImageData(x,y,1,1).data)
+                        scx.fillRect(x+xIndex*64,y+yIndex*64, 1,1)
+                    }
+                }
+                xIndex++
+            }
+            xIndex = 0
+            yIndex++
+        }
+
+        // create spritesheet viewer and options to download the image
+
+        let spritesheetDisplayer = document.createElement('div')
+        spritesheetDisplayer.setAttribute('id', 'spritesheet-displayer')
+        document.body.appendChild(spritesheetDisplayer)
+
+        let centerHolder = document.createElement('div')
+        centerHolder.setAttribute('class', 'center-holder')
+        spritesheetDisplayer.appendChild(centerHolder)
+
+        let optionssBar = document.createElement('div') 
+        optionssBar.setAttribute('class', 'options-bar')
+        centerHolder.appendChild(optionssBar)
+
+        let dl_name =  document.createElement('input')
+        dl_name.value = 'spritesheet_64x64'
+        optionssBar.appendChild(dl_name)
+
+        let dl_sh =  document.createElement('button')
+        dl_sh.innerText = 'download spritesheet'
+        dl_sh.onclick = () => {
+            
+            async function download() {
+                //get base64 value of the canvas
+                let base64 = spriteSheet.toDataURL()
+                let dl = document.createElement('a')
+                dl.setAttribute('download', dl_name.value)
+                dl.href = base64
+                dl.click()
+                return dl
+            }
+
+            download().then(dl => {
+                dl.remove()
+                spritesheetDisplayer.remove
+            })
+
+        }
+        optionssBar.appendChild(dl_sh)
+
+        let cls =  document.createElement('button')
+        cls.innerText = 'close'
+        cls.onclick = () => {
+            spritesheetDisplayer.remove()
+        }
+        optionssBar.appendChild(cls)
+
+        centerHolder.appendChild(spriteSheet)
+
+    }
+
     clearCanvas() {
         if(confirm('Are you sure you want to clear the canvas?'))
             this.init(this.areasize)
@@ -152,6 +262,92 @@ class Graphics {
         .finally(() => console.log('image saved'))
     
     }
+
+    saveProject() {
+        if(!document.getElementById('layers').hasChildNodes()) return;
+
+        let animations = document.getElementsByClassName('frames')
+
+        let anims = []
+        
+        for(let frames of animations) {
+            anims = [...anims, []]
+        
+
+            for(let frame of frames.childNodes) {
+
+
+                let fr = []
+                
+                let cx = frame.getContext('2d')
+                for(let y = 0; y < 64; y++) {
+                    fr[y] = []
+                    for(let x = 0; x < 64; x++) {
+                        let _d = cx.getImageData(x,y, 1,1).data
+                        fr[y].push([_d[0],_d[1],_d[2],_d[3]])
+                    }
+                }
+
+                anims[anims.length-1].push(fr)
+            }
+        }
+        
+        // save 
+        return new Promise((resolve, reject) => {
+            try {
+                let savedata = JSON.stringify(anims)
+                localStorage.setItem('current_project', savedata)
+                resolve()
+            }
+            catch (err) {
+                reject(err)
+            }
+        })
+        .then(() => {
+
+            console.log('project saved')
+
+        })
+        .catch(error => alert(error))
+
+    }
+
+    loadProject() {
+        if(localStorage.getItem('current_project')) {
+            let storage_string = localStorage.getItem('current_project')
+    
+            let project = JSON.parse(storage_string)
+
+            
+            this.currentLayer = 1
+            this.frameIndex = 0
+            
+            let animations = document.getElementById('layers')
+            while(animations.hasChildNodes())
+                animations.childNodes[0].remove()
+
+            this.init(64)
+
+            for(let layer of project) {
+                for(let frames of layer) {
+                    // // // 
+                    for(let y = 0; y < 64; y++) {
+                        for(let x = 0; x < 64; x++) {
+                            
+                            this.area[y][x] = this.getHEXPixelValue(frames[y][x])
+
+                        }
+                    }
+                    this.frameIndex++
+                    if(this.frameIndex >= frames.length-1) this.frameIndex = 0
+
+                    this.addFrame()
+                }
+                this.currentLayer++
+            }
+            
+        }
+    }
     
     addFrame() {
         let frames;
@@ -219,7 +415,6 @@ class Graphics {
             this.frameIndex = 0
     
             let animations = document.getElementById('layers')
-    
             while(animations.hasChildNodes())
                 animations.childNodes[0].remove()
         }

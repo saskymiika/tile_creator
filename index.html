@@ -44,6 +44,9 @@
                 <button title="erase all linked pixels hotkey '4'" class="btn erase-all" onclick="graphs.setDrawMode(2)"><span>4</span></button>
 
                 <button title="clear canvas hotkey 'C'" class="btn clear-canvas" style="margin-top: 20px;" onclick="graphs.clearCanvas()"><span>C</span></button>
+
+                <button title="save project 'S'" class="btn to-local" style="margin-top: 20px;" onclick="graphs.saveProject()"><span>S</span></button>
+                <button title="load project 'L'" class="btn from-local"  onclick="graphs.loadProject()"><span>L</span></button>
             </div>
         </div>
     </div>
@@ -64,7 +67,7 @@
                 <label title="show previous frame in the background" for="onion-skin-checkbox">Onion skin</label>
             </div>
 
-            <button title="bake animations into one sprite sheet">Create spritesheet</button>
+            <button onclick="graphs.createSpritesheet()" title="bake animations into one sprite sheet">Create spritesheet</button>
 
             <div id="frame-options"></div>
 
@@ -77,9 +80,6 @@
         </div>
 
         <div id="layers"></div>
-        
     </div>
-    
-
 </body>
 </html>
